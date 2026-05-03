@@ -1,7 +1,6 @@
 {
   "name": "salesbrain-bot",
   "version": "1.0.0",
-  "description": "AI Salesman Bot for DoharMart",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
@@ -10,7 +9,6 @@
     "express": "^4.18.2",
     "axios": "^1.6.0",
     "body-parser": "^1.20.0",
-    "@google/generative-ai": "^0.21.0",
-    "firebase-admin": "^11.0.0"
+    "@google/generative-ai": "^0.21.0"
   }
 }
