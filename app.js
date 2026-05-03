@@ -6,18 +6,18 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 app.use(bodyParser.json());
 
-// কনফিগারেশন
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRccokGNvbLELZBkxaTi159nYi0rFm9xZBDkooyA7bTQuHzwrdMrHQgw9jyVe6fNhU62ZCvYdZBsmCWlmIdfT4pJLsrt2bzGdscIWZCQEj0tte0ios49qfOcnxDVOKUPgN3ViZCfPoOYpKDArBxYhNpwsO9Ro3F7h2QC8iu8FYKwYZCZBtSQllCBy1ovnZBZB9ERNZBmTI5WbinlO1cWLQZDZD";
 const VERIFY_TOKEN = "salesbrain_secret_token";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// Webhook Validation
 app.get('/', (req, res) => {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
-        res.send('DoharMart AI is Live on Latest SDK!');
+        res.send('DoharMart AI is Online!');
     }
 });
 
@@ -42,26 +42,17 @@ app.post('/', async (req, res) => {
 
 async function getGeminiResponse(prompt) {
     try {
-        // লেটেস্ট মডেল নাম ব্যবহার করা হয়েছে
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash-latest" 
-        });
+        // মডেল হিসেবে gemini-1.5-flash-latest নিশ্চিত করা হয়েছে
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-        const systemInstruction = `
-        Tumi "DoharMart" e-commerce-er salesman. 
-        Amader info:
-        1. Sudhu Dhaka-r Dohar area-te Home Delivery kori. 
-        2. Delivery charge fix 50 taka. 
-        3. Amader Phone Number: 01540401099.
-        4. Customer jodi Banglay lekhe, tumi Banglay uttor dabe. Polite thakbe.
-        `;
+        const systemInstruction = "Tumi DoharMart-er salesman. Dohar area-te home delivery charge 50 taka. Phone: 01540401099. Polite thakbe.";
 
         const result = await model.generateContent(systemInstruction + "\nUser: " + prompt);
         const response = await result.response;
         return response.text(); 
     } catch (error) {
-        console.error("DEBUG Error:", error.message);
-        return "Sorry, ektu technical somossya hochche. Please call: 01540401099";
+        console.error("DEBUG Gemini Error:", error.message);
+        return "Sorry, ektu somossya hochche. Please call: 01540401099";
     }
 }
 
@@ -72,9 +63,9 @@ async function sendMessengerReply(psid, text) {
             message: { text: text }
         });
     } catch (e) {
-        console.error("FB Error:", e.message);
+        console.error("FB API Error:", e.message);
     }
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
