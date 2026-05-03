@@ -1,12 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios'); // এটি নতুন যোগ করা হয়েছে মেসেজ পাঠানোর জন্য
 const app = express();
 
 app.use(bodyParser.json());
 
-// Messenger Webhook Validation
+const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRYyTQZBdIcrfFcUzJFkuzX9IwT8qkDGDgnMafsss1n1hrE71VW5ZBOe2jBGNKdhGjqipEy9SYGzgMuZC9lW0areXQxldUv5VgPp8rJ5mLZASS7Vkdl8PZBPeeRJES7BU1Rs3YLJrnNOWfxrgeMQOdXoWb6aaylZC8O4bEbC6a67SUVLZCasbNvMwe5nzpR80vcQsUORFkywGZBSycAZDZD"; 
+const VERIFY_TOKEN = "salesbrain_secret_token";
+
+// Webhook Validation
 app.get('/', (req, res) => {
-    const VERIFY_TOKEN = "salesbrain_secret_token";
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
@@ -14,18 +17,28 @@ app.get('/', (req, res) => {
     }
 });
 
-// Event Handling (Messages & Comments)
+// Event Handling
 app.post('/', (req, res) => {
     const body = req.body;
+
     if (body.object === 'page') {
         body.entry.forEach(entry => {
-            // Inbox message handling
+            // ইনবক্স মেসেজ হ্যান্ডলিং
             if (entry.messaging) {
-                console.log("New Message Received");
+                entry.messaging.forEach(event => {
+                    if (event.message && event.message.text) {
+                        sendMessengerReply(event.sender.id, "Alhamdulillah! SalesBrain AI active hoyeche. Ami apnar message peyechi.");
+                    }
+                });
             }
-            // Comment handling
+            // কমেন্ট হ্যান্ডলিং
             if (entry.changes) {
-                console.log("New Comment Received");
+                entry.changes.forEach(change => {
+                    if (change.field === 'feed' && change.value.item === 'comment' && change.value.verb === 'add') {
+                        const commentId = change.value.comment_id;
+                        sendCommentReply(commentId, "Dhonno bad comment korar jonno! Amra khub shiggori apnar shathe jogajog korbo.");
+                    }
+                });
             }
         });
         res.status(200).send('EVENT_RECEIVED');
@@ -34,8 +47,24 @@ app.post('/', (req, res) => {
     }
 });
 
-// Port settings (Render-er jonno eta dorkar)
+// মেসেঞ্জারে রিপ্লাই পাঠানোর ফাংশন
+async function sendMessengerReply(psid, text) {
+    try {
+        await axios.post(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+            recipient: { id: psid },
+            message: { text: text }
+        });
+    } catch (error) { console.error("Error sending message:", error.response.data); }
+}
+
+// কমেন্টে রিপ্লাই পাঠানোর ফাংশন
+async function sendCommentReply(commentId, text) {
+    try {
+        await axios.post(`https://graph.facebook.com/v19.0/${commentId}/comments?access_token=${PAGE_ACCESS_TOKEN}`, {
+            message: text
+        });
+    } catch (error) { console.error("Error sending comment:", error.response.data); }
+}
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
