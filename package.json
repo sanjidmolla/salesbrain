@@ -1,7 +1,7 @@
 {
   "name": "salesbrain-bot",
   "version": "1.0.0",
-  "description": "AI Salesman Bot",
+  "description": "AI Salesman Bot for DoharMart",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
