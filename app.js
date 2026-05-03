@@ -7,7 +7,6 @@ const app = express();
 app.use(bodyParser.json());
 
 // --- CONFIGURATION ---
-// আপনার এপিআই কি সরাসরি এখানে লিখবেন না, এটি রেন্ডার থেকে আসবে
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRccokGNvbLELZBkxaTi159nYi0rFm9xZBDkooyA7bTQuHzwrdMrHQgw9jyVe6fNhU62ZCvYdZBsmCWlmIdfT4pJLsrt2bzGdscIWZCQEj0tte0ios49qfOcnxDVOKUPgN3ViZCfPoOYpKDArBxYhNpwsO9Ro3F7h2QC8iu8FYKwYZCZBtSQllCBy1ovnZBZB9ERNZBmTI5WbinlO1cWLQZDZD";
 const VERIFY_TOKEN = "salesbrain_secret_token";
@@ -34,7 +33,6 @@ app.post('/', async (req, res) => {
                         const senderPsid = event.sender.id;
                         const userMessage = event.message.text;
 
-                        // AI থেকে রেসপন্স নেওয়া
                         const aiResponse = await getGeminiResponse(userMessage);
                         await sendMessengerReply(senderPsid, aiResponse);
                     }
@@ -45,28 +43,24 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
+// AI ট্রেনিং এবং রেসপন্স ফাংশন (Updated per Chatbots suggestions)
 async function getGeminiResponse(prompt) {
     try {
-        // মডেলের সঠিক নাম নিশ্চিত করা হয়েছে
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // মডেলের নাম পরিবর্তন করে 'gemini-1.5-flash-latest' করা হয়েছে
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash-latest" 
+        });
 
         const systemInstruction = `
-        Tumi "DoharMart" e-commerce-er ekjon expert salesman. 
-        Amader prothan tortho:
-        1. Amra sudhu Dhaka-r Dohar area-te Home Delivery kori. 
+        Tumi "DoharMart" e-commerce-er salesman. 
+        Amader info:
+        1. Sudhu Dhaka-r Dohar-e Home Delivery kori. 
         2. Delivery charge fix 50 taka. 
-        3. Amader Phone Number: 01540401099.
-        4. Amra online e-commerce platform. 
-        
-        Language Rules:
-        - Customer jodi Banglay lekhe, tumi shudho Banglay uttor dabe.
-        - Customer jodi English-e lekhe, tumi English-e uttor dabe.
-        - Customer jodi Banglish-e (Jemon: kemon achen) lekhe, tumi Banglish-e bondhushulob uttor dabe.
-        
-        Kotha bolar style: Sob somoy polite thakbe ebong customer-ke help korar chesta korbe.
+        3. Phone Number: 01540401099.
+        4. Polite thakbe ebong customer-ke help korbe.
         `;
 
+        // generateContent call করার সময় v1 ব্যবহার হবে ডিফল্টভাবে লেটেস্ট লাইব্রেরিতে
         const result = await model.generateContent(systemInstruction + "\nUser Message: " + prompt);
         const response = await result.response;
         return response.text(); 
