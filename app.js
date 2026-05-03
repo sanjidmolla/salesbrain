@@ -47,7 +47,7 @@ app.post('/', async (req, res) => {
 // AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
 async function getGeminiResponse(prompt) {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
 
         const systemInstruction = `
         Tumi "DoharMart" e-commerce-er ekjon expert salesman. 
