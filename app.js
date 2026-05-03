@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
-        res.send('SalesBrain AI is Online and Ready!');
+        res.send('DoharMart AI is Online!');
     }
 });
 
@@ -45,26 +45,30 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন
+// AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
 async function getGeminiResponse(prompt) {
     try {
         const systemInstruction = `
-        Tumi DoharMart-er ekjon expert ebong bondhushulob salesman. 
-        DoharMart Dhaka-r Dohar area-te delivery dey. 
-        Amader ponno: Poultry feed, macher khabar, ebong agro products. 
-        Kotha bolar niyom: 
-        1. Sob somoy 'Slam/Nomoshkar' diye kotha shuru korbe. 
-        2. Khub shorol ebong shudho Banglay kotha bolbe. 
-        3. Jodi kono damer kotha jiggesha kore kintu tumi na jano, tahole bolbe "Amader admin ekhon-i apnake exact dam-ti janabe".
-        4. Customer-ke bolbe amra Dohar-er bhetore khub druto delivery dei.
+        Tumi "DoharMart" e-commerce-er ekjon expert salesman. 
+        Amader prothan tortho:
+        1. Amra sudhu Dhaka-r Dohar area-te Home Delivery kori. 
+        2. Delivery charge fix 50 taka. 
+        3. Amader Phone Number: 01540401099.
+        4. Amra online e-commerce platform. 
+        
+        Language Rules:
+        - Customer jodi Banglay (বাংলা) lekhe, tumi shudho Banglay uttor dabe.
+        - Customer jodi English-e lekhe, tumi English-e uttor dabe.
+        - Customer jodi Banglish-e (Jemon: kemon achen) lekhe, tumi Banglish-e bondhushulob uttor dabe.
+        
+        Kotha bolar style: Sob somoy polite thakbe ebong customer-ke help korar chesta korbe.
         `;
 
-        const result = await model.generateContent(systemInstruction + "\nUser Question: " + prompt);
-        const response = await result.response;
-        return response.text();
+        const result = await model.generateContent(systemInstruction + "\nUser Message: " + prompt);
+        return result.response.text();
     } catch (error) {
         console.error("Gemini Error:", error);
-        return "Dhonnobad apnar message-er jonno. Amader representative khub shiggori jogajog korbe.";
+        return "Sorry, ektu somossya hochche. Please amader call korun: 01540401099";
     }
 }
 
@@ -75,7 +79,7 @@ async function sendMessengerReply(psid, text) {
             message: { text: text }
         });
     } catch (e) {
-        console.error("FB Send Error:", e.response ? e.response.data : e.message);
+        console.error("FB API Error:", e.response ? e.response.data : e.message);
     }
 }
 
