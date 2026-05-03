@@ -6,23 +6,21 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 app.use(bodyParser.json());
 
-// --- CONFIGURATION ---
+// কনফিগারেশন
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRccokGNvbLELZBkxaTi159nYi0rFm9xZBDkooyA7bTQuHzwrdMrHQgw9jyVe6fNhU62ZCvYdZBsmCWlmIdfT4pJLsrt2bzGdscIWZCQEj0tte0ios49qfOcnxDVOKUPgN3ViZCfPoOYpKDArBxYhNpwsO9Ro3F7h2QC8iu8FYKwYZCZBtSQllCBy1ovnZBZB9ERNZBmTI5WbinlO1cWLQZDZD";
 const VERIFY_TOKEN = "salesbrain_secret_token";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-// Webhook Validation
 app.get('/', (req, res) => {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
-        res.send('DoharMart AI is Online and Secure!');
+        res.send('DoharMart AI is Live on Latest SDK!');
     }
 });
 
-// Event Handling
 app.post('/', async (req, res) => {
     const body = req.body;
     if (body.object === 'page') {
@@ -32,7 +30,6 @@ app.post('/', async (req, res) => {
                     if (event.message && event.message.text) {
                         const senderPsid = event.sender.id;
                         const userMessage = event.message.text;
-
                         const aiResponse = await getGeminiResponse(userMessage);
                         await sendMessengerReply(senderPsid, aiResponse);
                     }
@@ -43,10 +40,9 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন (Updated per Chatbots suggestions)
 async function getGeminiResponse(prompt) {
     try {
-        // মডেলের নাম পরিবর্তন করে 'gemini-1.5-flash-latest' করা হয়েছে
+        // লেটেস্ট মডেল নাম ব্যবহার করা হয়েছে
         const model = genAI.getGenerativeModel({ 
             model: "gemini-1.5-flash-latest" 
         });
@@ -54,19 +50,18 @@ async function getGeminiResponse(prompt) {
         const systemInstruction = `
         Tumi "DoharMart" e-commerce-er salesman. 
         Amader info:
-        1. Sudhu Dhaka-r Dohar-e Home Delivery kori. 
+        1. Sudhu Dhaka-r Dohar area-te Home Delivery kori. 
         2. Delivery charge fix 50 taka. 
-        3. Phone Number: 01540401099.
-        4. Polite thakbe ebong customer-ke help korbe.
+        3. Amader Phone Number: 01540401099.
+        4. Customer jodi Banglay lekhe, tumi Banglay uttor dabe. Polite thakbe.
         `;
 
-        // generateContent call করার সময় v1 ব্যবহার হবে ডিফল্টভাবে লেটেস্ট লাইব্রেরিতে
-        const result = await model.generateContent(systemInstruction + "\nUser Message: " + prompt);
+        const result = await model.generateContent(systemInstruction + "\nUser: " + prompt);
         const response = await result.response;
         return response.text(); 
     } catch (error) {
-        console.error("DEBUG Gemini Error:", error.message);
-        return "Sorry, ektu somossya hochche. Please amader call korun: 01540401099";
+        console.error("DEBUG Error:", error.message);
+        return "Sorry, ektu technical somossya hochche. Please call: 01540401099";
     }
 }
 
@@ -77,9 +72,9 @@ async function sendMessengerReply(psid, text) {
             message: { text: text }
         });
     } catch (e) {
-        console.error("FB API Error:", e.response ? e.response.data : e.message);
+        console.error("FB Error:", e.message);
     }
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
