@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
-        res.send('DoharMart AI is Online and Running with Gemini Pro!');
+        res.send('DoharMart AI is Online and Running!');
     }
 });
 
@@ -44,11 +44,10 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন (Gemini Pro)
+// AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
 async function getGeminiResponse(prompt) {
     try {
-        // মডেলের নাম পরিবর্তন করে gemini-pro করা হয়েছে
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const systemInstruction = `
         Tumi "DoharMart" e-commerce-er ekjon expert salesman. 
@@ -70,7 +69,7 @@ async function getGeminiResponse(prompt) {
         const response = await result.response;
         return response.text(); 
     } catch (error) {
-        console.error("Gemini Pro Error:", error.message);
+        console.error("DEBUG Gemini Error:", error.message);
         return "Sorry, ektu somossya hochche. Please amader call korun: 01540401099";
     }
 }
