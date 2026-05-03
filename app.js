@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
-        res.send('DoharMart AI is Online and Running!');
+        res.send('DoharMart AI is Online and Running with Gemini Pro!');
     }
 });
 
@@ -33,8 +33,6 @@ app.post('/', async (req, res) => {
                         const senderPsid = event.sender.id;
                         const userMessage = event.message.text;
 
-                        console.log("New message from:", senderPsid);
-                        
                         // AI থেকে রেসপন্স নেওয়া
                         const aiResponse = await getGeminiResponse(userMessage);
                         await sendMessengerReply(senderPsid, aiResponse);
@@ -46,11 +44,11 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
+// AI ট্রেনিং এবং রেসপন্স ফাংশন (Gemini Pro)
 async function getGeminiResponse(prompt) {
     try {
-        // মডেলটি সরাসরি ফাংশনের ভেতরে ডিক্লেয়ার করা অনেক সময় ফ্রি টায়ারে ভালো কাজ করে
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // মডেলের নাম পরিবর্তন করে gemini-pro করা হয়েছে
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const systemInstruction = `
         Tumi "DoharMart" e-commerce-er ekjon expert salesman. 
@@ -72,8 +70,7 @@ async function getGeminiResponse(prompt) {
         const response = await result.response;
         return response.text(); 
     } catch (error) {
-        // লগে এরর মেসেজটি ডিটেইল প্রিন্ট হবে যাতে আপনি রেন্ডারে দেখতে পারেন
-        console.error("DEBUG Gemini Error:", error.message);
+        console.error("Gemini Pro Error:", error.message);
         return "Sorry, ektu somossya hochche. Please amader call korun: 01540401099";
     }
 }
@@ -84,7 +81,6 @@ async function sendMessengerReply(psid, text) {
             recipient: { id: psid },
             message: { text: text }
         });
-        console.log("Reply sent successfully!");
     } catch (e) {
         console.error("FB API Error:", e.response ? e.response.data : e.message);
     }
