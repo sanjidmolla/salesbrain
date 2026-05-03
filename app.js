@@ -12,6 +12,7 @@ const VERIFY_TOKEN = "salesbrain_secret_token";
 const GEMINI_API_KEY = "AIzaSyBuvWGwqAwfVZh67mtOCdcYcHJ-PxGs4Mo"; 
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// এখানে মডেলের নাম আপডেট করা হয়েছে
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // Webhook Validation
@@ -19,7 +20,7 @@ app.get('/', (req, res) => {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
-        res.send('DoharMart AI is Online!');
+        res.send('DoharMart AI is Online and Running!');
     }
 });
 
@@ -34,7 +35,7 @@ app.post('/', async (req, res) => {
                         const senderPsid = event.sender.id;
                         const userMessage = event.message.text;
 
-                        // AI theke response neya
+                        // AI থেকে রেসপন্স নেওয়া
                         const aiResponse = await getGeminiResponse(userMessage);
                         await sendMessengerReply(senderPsid, aiResponse);
                     }
@@ -45,7 +46,7 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
+// AI ট্রেনিং এবং রেসপন্স ফাংশন
 async function getGeminiResponse(prompt) {
     try {
         const systemInstruction = `
@@ -57,15 +58,17 @@ async function getGeminiResponse(prompt) {
         4. Amra online e-commerce platform. 
         
         Language Rules:
-        - Customer jodi Banglay (বাংলা) lekhe, tumi shudho Banglay uttor dabe.
+        - Customer jodi Banglay lekhe, tumi shudho Banglay uttor dabe.
         - Customer jodi English-e lekhe, tumi English-e uttor dabe.
         - Customer jodi Banglish-e (Jemon: kemon achen) lekhe, tumi Banglish-e bondhushulob uttor dabe.
         
         Kotha bolar style: Sob somoy polite thakbe ebong customer-ke help korar chesta korbe.
         `;
 
+        // generateContent call করার সঠিক নিয়ম
         const result = await model.generateContent(systemInstruction + "\nUser Message: " + prompt);
-        return result.response.text();
+        const response = await result.response;
+        return response.text(); 
     } catch (error) {
         console.error("Gemini Error:", error);
         return "Sorry, ektu somossya hochche. Please amader call korun: 01540401099";
