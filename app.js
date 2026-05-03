@@ -12,8 +12,6 @@ const VERIFY_TOKEN = "salesbrain_secret_token";
 const GEMINI_API_KEY = "AIzaSyBuvWGwqAwfVZh67mtOCdcYcHJ-PxGs4Mo"; 
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-// এখানে মডেলের নাম আপডেট করা হয়েছে
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // Webhook Validation
 app.get('/', (req, res) => {
@@ -35,6 +33,8 @@ app.post('/', async (req, res) => {
                         const senderPsid = event.sender.id;
                         const userMessage = event.message.text;
 
+                        console.log("New message from:", senderPsid);
+                        
                         // AI থেকে রেসপন্স নেওয়া
                         const aiResponse = await getGeminiResponse(userMessage);
                         await sendMessengerReply(senderPsid, aiResponse);
@@ -46,9 +46,12 @@ app.post('/', async (req, res) => {
     }
 });
 
-// AI ট্রেনিং এবং রেসপন্স ফাংশন
+// AI ট্রেনিং এবং রেসপন্স ফাংশন (Language Adaptive)
 async function getGeminiResponse(prompt) {
     try {
+        // মডেলটি সরাসরি ফাংশনের ভেতরে ডিক্লেয়ার করা অনেক সময় ফ্রি টায়ারে ভালো কাজ করে
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
         const systemInstruction = `
         Tumi "DoharMart" e-commerce-er ekjon expert salesman. 
         Amader prothan tortho:
@@ -65,12 +68,12 @@ async function getGeminiResponse(prompt) {
         Kotha bolar style: Sob somoy polite thakbe ebong customer-ke help korar chesta korbe.
         `;
 
-        // generateContent call করার সঠিক নিয়ম
         const result = await model.generateContent(systemInstruction + "\nUser Message: " + prompt);
         const response = await result.response;
         return response.text(); 
     } catch (error) {
-        console.error("Gemini Error:", error);
+        // লগে এরর মেসেজটি ডিটেইল প্রিন্ট হবে যাতে আপনি রেন্ডারে দেখতে পারেন
+        console.error("DEBUG Gemini Error:", error.message);
         return "Sorry, ektu somossya hochche. Please amader call korun: 01540401099";
     }
 }
@@ -81,6 +84,7 @@ async function sendMessengerReply(psid, text) {
             recipient: { id: psid },
             message: { text: text }
         });
+        console.log("Reply sent successfully!");
     } catch (e) {
         console.error("FB API Error:", e.response ? e.response.data : e.message);
     }
