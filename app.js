@@ -1,10 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios'); // এটি নতুন যোগ করা হয়েছে মেসেজ পাঠানোর জন্য
+const axios = require('axios');
 const app = express();
 
 app.use(bodyParser.json());
 
+// Apnar deya Token ekhane bosiye diyechi
 const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRYyTQZBdIcrfFcUzJFkuzX9IwT8qkDGDgnMafsss1n1hrE71VW5ZBOe2jBGNKdhGjqipEy9SYGzgMuZC9lW0areXQxldUv5VgPp8rJ5mLZASS7Vkdl8PZBPeeRJES7BU1Rs3YLJrnNOWfxrgeMQOdXoWb6aaylZC8O4bEbC6a67SUVLZCasbNvMwe5nzpR80vcQsUORFkywGZBSycAZDZD"; 
 const VERIFY_TOKEN = "salesbrain_secret_token";
 
@@ -23,19 +24,22 @@ app.post('/', (req, res) => {
 
     if (body.object === 'page') {
         body.entry.forEach(entry => {
-            // ইনবক্স মেসেজ হ্যান্ডলিং
+            // Messenger Inbox Handling
             if (entry.messaging) {
                 entry.messaging.forEach(event => {
                     if (event.message && event.message.text) {
-                        sendMessengerReply(event.sender.id, "Alhamdulillah! SalesBrain AI active hoyeche. Ami apnar message peyechi.");
+                        const senderPsid = event.sender.id;
+                        console.log("Message received from:", senderPsid);
+                        sendMessengerReply(senderPsid, "Alhamdulillah! SalesBrain AI active hoyeche. Ami apnar message peyechi.");
                     }
                 });
             }
-            // কমেন্ট হ্যান্ডলিং
+            // Comment Handling
             if (entry.changes) {
                 entry.changes.forEach(change => {
                     if (change.field === 'feed' && change.value.item === 'comment' && change.value.verb === 'add') {
                         const commentId = change.value.comment_id;
+                        console.log("Comment received ID:", commentId);
                         sendCommentReply(commentId, "Dhonno bad comment korar jonno! Amra khub shiggori apnar shathe jogajog korbo.");
                     }
                 });
@@ -47,23 +51,29 @@ app.post('/', (req, res) => {
     }
 });
 
-// মেসেঞ্জারে রিপ্লাই পাঠানোর ফাংশন
+// Function to send Messenger Reply
 async function sendMessengerReply(psid, text) {
     try {
-        await axios.post(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+        await axios.post(`https://graph.facebook.com/v21.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
             recipient: { id: psid },
             message: { text: text }
         });
-    } catch (error) { console.error("Error sending message:", error.response.data); }
+        console.log("Reply sent successfully!");
+    } catch (error) {
+        console.error("Error sending message:", error.response ? error.response.data : error.message);
+    }
 }
 
-// কমেন্টে রিপ্লাই পাঠানোর ফাংশন
+// Function to send Comment Reply
 async function sendCommentReply(commentId, text) {
     try {
-        await axios.post(`https://graph.facebook.com/v19.0/${commentId}/comments?access_token=${PAGE_ACCESS_TOKEN}`, {
+        await axios.post(`https://graph.facebook.com/v21.0/${commentId}/comments?access_token=${PAGE_ACCESS_TOKEN}`, {
             message: text
         });
-    } catch (error) { console.error("Error sending comment:", error.response.data); }
+        console.log("Comment reply sent!");
+    } catch (error) {
+        console.error("Error sending comment:", error.response ? error.response.data : error.message);
+    }
 }
 
 const PORT = process.env.PORT || 3000;
