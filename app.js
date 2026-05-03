@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // --- CONFIGURATION ---
-const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRYyTQZBdIcrfFcUzJFkuzX9IwT8qkDGDgnMafsss1n1hrE71VW5ZBOe2jBGNKdhGjqipEy9SYGzgMuZC9lW0areXQxldUv5VgPp8rJ5mLZASS7Vkdl8PZBPeeRJES7BU1Rs3YLJrnNOWfxrgeMQOdXoWb6aaylZC8O4bEbC6a67SUVLZCasbNvMwe5nzpR80vcQsUORFkywGZBSycAZDZD";
+const PAGE_ACCESS_TOKEN = "EAASg8xC8QY0BRccokGNvbLELZBkxaTi159nYi0rFm9xZBDkooyA7bTQuHzwrdMrHQgw9jyVe6fNhU62ZCvYdZBsmCWlmIdfT4pJLsrt2bzGdscIWZCQEj0tte0ios49qfOcnxDVOKUPgN3ViZCfPoOYpKDArBxYhNpwsO9Ro3F7h2QC8iu8FYKwYZCZBtSQllCBy1ovnZBZB9ERNZBmTI5WbinlO1cWLQZDZD";
 const VERIFY_TOKEN = "salesbrain_secret_token";
 const GEMINI_API_KEY = "AIzaSyBuvWGwqAwfVZh67mtOCdcYcHJ-PxGs4Mo"; 
 
